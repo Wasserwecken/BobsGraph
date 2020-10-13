@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="DamageGraph.GraphUI"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DamageGraph"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             mc:Ignorable="d">
+    <Grid x:Name="GraphGrid" Width="352" Height="100">
+        <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FF23272A"/>
+        <Polyline StrokeThickness="2" Points="{Binding DamagePoints}">
+            <Polyline.Stroke>
+                <LinearGradientBrush x:Name="DamageGradient" StartPoint="0.5,0" EndPoint="0.5,1">
+                    <GradientStop Color="Green" Offset="0"/>
+                    <GradientStop Color="Red" Offset="1"/>
+                </LinearGradientBrush>
+            </Polyline.Stroke>
+        </Polyline>
+        
+        <Line
+            Stroke="#7FFFFFFF"
+            StrokeThickness="1"
+            X1="0" X2="352"
+            Y1="{Binding TieLinePosition}"
+            Y2="{Binding TieLinePosition}"
+            Visibility="{Binding TieLineVisibility}"
+        />
+    </Grid>
+</UserControl>

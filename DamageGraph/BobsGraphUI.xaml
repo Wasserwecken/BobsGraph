@@ -16,15 +16,8 @@
     
     <UserControl.Resources>
         <Style TargetType="TextBlock" x:Key="DamageInfo">
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="TextAlignment" Value="Center"/>
         </Style>
-
-        <Style TargetType="Polyline" x:Key="GraphLine">
-            <Setter Property="StrokeThickness" Value="4"/>
-        </Style>
-        <Color x:Key="Take">#8AC66E</Color>
-        <Color x:Key="Deal">#FFC66E6E</Color>
     </UserControl.Resources>
 
     <Grid>
@@ -37,13 +30,12 @@
             <Polyline
                 x:Name="DamgeLine"
                 Points="{Binding DamagePoints}"
-                Style="{StaticResource GraphLine}"
                 StrokeThickness="2"
             >
                 <Polyline.Stroke>
                     <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                        <GradientStop Color="#8AC66E" Offset="0"/>
-                        <GradientStop Color="#C66E6E" Offset="1"/>
+                        <GradientStop Color="{Binding MaxDamageColor}" Offset="0"/>
+                        <GradientStop Color="{Binding MinDamageColor}" Offset="1"/>
                     </LinearGradientBrush>
                 </Polyline.Stroke>
             </Polyline>
@@ -86,8 +78,9 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding MaxDamage}" Foreground="{Binding MinDamageTextColor}" Style="{StaticResource DamageInfo}"/>
-                <TextBlock Grid.Column="2" Text="{Binding MinDamage}" Foreground="{Binding MaxDamageTextColor}" Style="{StaticResource DamageInfo}"/>
+                <TextBlock Grid.Column="0" Visibility="{Binding MinMaxDamageVisible}" Text="{Binding MinDamage}" Foreground="{Binding MinDamageBrush}" Style="{StaticResource DamageInfo}"/>
+                <TextBlock Grid.Column="1" Visibility="{Binding EqualDamageVisible}" Text="{Binding MinDamage}" Foreground="{Binding EqualDamageBrush}" Style="{StaticResource DamageInfo}"/>
+                <TextBlock Grid.Column="2" Visibility="{Binding MinMaxDamageVisible}" Text="{Binding MaxDamage}" Foreground="{Binding MaxDamageBrush}" Style="{StaticResource DamageInfo}"/>
             </Grid>
         </Border>
     </Grid>

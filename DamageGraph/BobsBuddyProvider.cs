@@ -2,10 +2,7 @@
 using Hearthstone_Deck_Tracker;
 using Hearthstone_Deck_Tracker.Utility.Logging;
 using System;
-using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Windows;
 
 namespace BobsGraphPlugin
 {

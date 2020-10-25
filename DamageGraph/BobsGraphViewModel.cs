@@ -9,26 +9,47 @@ using System.Windows.Shapes;
 namespace BobsGraphPlugin
 {
     public class BobsGraphViewModel
-    {
+    {        
+        /// <summary>
+        /// 
+        /// </summary>
+        private struct DamageDistributionItem
+        {
+            public float Damage { get; set; }
+            public float Percentage { get; set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="damage"></param>
+            /// <param name="percentage"></param>
+            public DamageDistributionItem(float damage, float percentage)
+            {
+                Damage = damage;
+                Percentage = percentage;
+            }
+        }
+
+        public Visibility TieLineVisibility { get; private set; }
         public Visibility MinMaxDamageVisible { get; private set; }
         public Visibility EqualDamageVisible { get; private set; }
 
         public int MaxDamage { get; private set; }
         public int MinDamage { get; private set; }
+        
+        public double TieLinePosition { get; private set; }
         public double TakeLethalAreaWidth { get; private set; }
         public double TakeDamageAreaWidth { get; private set; }
         public double DealDamageAreaWidth { get; private set; }
         public double DealLethalAreaWidth { get; private set; }
+        
+        public PointCollection GraphPoints { get; private set; }
 
-        public PointCollection DamagePoints { get; private set; }
-        public List<Rectangle> DamageBars { get; private set; }
-
-        public Point GradientPointStart { get; private set; }
-        public Point GradientPointEnd { get; private set; }
-
+        public Brush TieLineBrush { get; private set; }
         public Brush EqualDamageBrush { get; private set; }
         public Brush MinDamageBrush { get; private set; }
         public Brush MaxDamageBrush { get; private set; }
+        
         public Color EqualDamageColor { get; private set; }
         public Color MinDamageColor { get; private set; }
         public Color MaxDamageColor { get; private set; }
@@ -53,17 +74,16 @@ namespace BobsGraphPlugin
         /// <summary>
         /// 
         /// </summary>
-        public BobsGraphViewModel(TestOutput simulationResult, double graphWidth, double graphHeight)
+        public BobsGraphViewModel(TestOutput simulationResult, float graphWidth, float graphHeight, float lineWidth)
             : this()
         {
             _normalizedDamageDistribution = new List<DamageDistributionItem>();
-            DamagePoints = new PointCollection();
-            DamageBars = new List<Rectangle>();
+            GraphPoints = new PointCollection();
 
-            EvaluateData(simulationResult);
+            PrepareData(simulationResult);
+            SetGraph(graphWidth, graphHeight, lineWidth);
+            SetVisibility();
             SetColors();
-            SetDamageBars(graphWidth, graphHeight);
-            SetVisibilityData();
         }
 
 
@@ -71,7 +91,7 @@ namespace BobsGraphPlugin
         /// 
         /// </summary>
         /// <param name="simulationResult"></param>
-        private void EvaluateData(TestOutput simulationResult)
+        private void PrepareData(TestOutput simulationResult)
         {
             MaxDamage = simulationResult.result.Max(trace => trace.damage);
             MinDamage = simulationResult.result.Min(trace => trace.damage);
@@ -79,7 +99,7 @@ namespace BobsGraphPlugin
 
             if (MinDamage == MaxDamage)
             {
-                _normalizedDamageDistribution.Add(new DamageDistributionItem(0.5d, 1d));
+                _normalizedDamageDistribution.Add(new DamageDistributionItem(0.5f, 1f));
             }
             else
             {
@@ -88,11 +108,11 @@ namespace BobsGraphPlugin
                     .Select(group =>
                     {
                         return new DamageDistributionItem(
-                            Remap(group.Key, -maxPeak, maxPeak, 0, 1),
+                            Remap(group.Key, MinDamage, MaxDamage, 0, 1),
                             group.Count() / (float)simulationResult.result.Count
                         );
                     })
-                    .OrderBy(item => item.Value)
+                    .OrderBy(item => item.Damage)
                     .ToList()
                     .ForEach(item => _normalizedDamageDistribution.Add(item));
             }
@@ -103,19 +123,20 @@ namespace BobsGraphPlugin
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        private void SetDamageBars(double width, double height)
+        private void SetGraph(float width, float height, float lineWidth)
         {
-            var barWidth = _normalizedDamageDistribution.Count() / width;
-            
-            var horizontalPosition = 0d;
-            var verticalPosition = 0d;
+            var lineHalfWidth = lineWidth / 2;
+            var horizontal = 0d;
+            var vertical = 0d;
+
+            TieLinePosition = (Remap(0, MinDamage, MaxDamage, 1, 0) * height -lineHalfWidth) + lineHalfWidth;
             _normalizedDamageDistribution.ForEach(item =>
             {
-                verticalPosition = (1 - item.Value) * height;
-                DamagePoints.Add(new Point(horizontalPosition, verticalPosition));
+                vertical = Remap(item.Damage, 0, 1, height -lineHalfWidth, lineHalfWidth);
+                GraphPoints.Add(new Point(horizontal, vertical));
 
-                horizontalPosition += item.Percentage * width;
-                DamagePoints.Add(new Point(horizontalPosition, verticalPosition));
+                horizontal += item.Percentage * width;
+                GraphPoints.Add(new Point(horizontal, vertical));
             });
         }
 
@@ -127,7 +148,6 @@ namespace BobsGraphPlugin
             EqualDamageColor = _tieColorBase;
             MinDamageColor = _takeDamageColorBase;
             MaxDamageColor = _dealDamageColorBase;
-
 
             if (MinDamage == MaxDamage)
             {
@@ -152,6 +172,7 @@ namespace BobsGraphPlugin
                 }
             }
 
+            TieLineBrush = new SolidColorBrush(_tieColorBase);
             EqualDamageBrush = new SolidColorBrush(EqualDamageColor);
             MinDamageBrush = new SolidColorBrush(MinDamageColor);
             MaxDamageBrush = new SolidColorBrush(MaxDamageColor);
@@ -160,37 +181,19 @@ namespace BobsGraphPlugin
         /// <summary>
         /// 
         /// </summary>
-        private void SetVisibilityData()
+        private void SetVisibility()
         {
             if (MinDamage == MaxDamage)
             {
+                TieLineVisibility = Visibility.Hidden;
                 MinMaxDamageVisible = Visibility.Hidden;
                 EqualDamageVisible = Visibility.Visible;
             }
             else
             {
+                TieLineVisibility = MinDamage > 0 || MaxDamage < 0 ? Visibility.Hidden : Visibility.Visible;
                 MinMaxDamageVisible = Visibility.Visible;
                 EqualDamageVisible = Visibility.Hidden;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private struct DamageDistributionItem
-        {
-            public double Value { get; set; }
-            public double Percentage { get; set; }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="value"></param>
-            /// <param name="percentage"></param>
-            public DamageDistributionItem(double value, double percentage)
-            {
-                Value = value;
-                Percentage = percentage;
             }
         }
 

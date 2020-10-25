@@ -23,7 +23,12 @@ namespace BobsGraphPlugin
         /// <param name="simulationOutput"></param>
         public void Update(TestOutput simulationOutput)
         {
-            DataContext = new BobsGraphViewModel(simulationOutput, GraphArea.ActualWidth, GraphArea.ActualHeight);
+            DataContext = new BobsGraphViewModel(
+                simulationOutput,
+                (float)GraphArea.ActualWidth,
+                (float)GraphArea.ActualHeight,
+                2
+            );
         }
 
         public void Show()

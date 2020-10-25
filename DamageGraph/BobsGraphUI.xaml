@@ -13,7 +13,7 @@
     <UserControl.DataContext>
         <local:BobsGraphViewModel/>
     </UserControl.DataContext>
-    
+
     <UserControl.Resources>
         <Style TargetType="TextBlock" x:Key="DamageInfo">
             <Setter Property="TextAlignment" Value="Center"/>
@@ -26,50 +26,59 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="GraphArea" Grid.Row="0">
-            <Polyline
-                x:Name="DamgeLine"
-                Points="{Binding DamagePoints}"
-                StrokeThickness="2"
-            >
-                <Polyline.Stroke>
-                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                        <GradientStop Color="{Binding MaxDamageColor}" Offset="0"/>
-                        <GradientStop Color="{Binding MinDamageColor}" Offset="1"/>
-                    </LinearGradientBrush>
-                </Polyline.Stroke>
-            </Polyline>
+        <Border Padding="0,4">
+            <Grid x:Name="GraphArea" Grid.Row="0" ClipToBounds="True">
+                <Polyline 
+                    Points="{Binding GraphPoints}"
+                >
+                    <Polyline.Stroke>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{Binding MinDamageColor}" Offset="0"/>
+                            <GradientStop Color="{Binding MaxDamageColor}" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Polyline.Stroke>
+                </Polyline>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Line
+                    X1="0"
+                    X2="4000"
+                    Y1="{Binding TieLinePosition}"
+                    Y2="{Binding TieLinePosition}"
+                    Stroke="{Binding TieLineBrush}"
+                    Visibility="{Binding TieLineVisibility}"
+                />
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Rectangle
-                        x:Name="TakeLethalArea"
-                        Width="{Binding TakeLethalAreaWidth}"
-                    />
-                    <Rectangle
-                        x:Name="TakeDamageArea"
-                        Width="{Binding TakeDamageAreaWidth}"
-                    />
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Rectangle
-                        x:Name="DealDamageArea"
-                        Width="{Binding DealDamageAreaWidth}"
-                    />
-                    <Rectangle
-                        x:Name="DealLethalArea"
-                        Width="{Binding DealLethalAreaWidth}"
-                    />
-                </StackPanel>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Rectangle
+                            x:Name="TakeLethalArea"
+                            Width="{Binding TakeLethalAreaWidth}"
+                        />
+                        <Rectangle
+                            x:Name="TakeDamageArea"
+                            Width="{Binding TakeDamageAreaWidth}"
+                        />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Rectangle
+                            x:Name="DealDamageArea"
+                            Width="{Binding DealDamageAreaWidth}"
+                        />
+                        <Rectangle
+                            x:Name="DealLethalArea"
+                            Width="{Binding DealLethalAreaWidth}"
+                        />
+                    </StackPanel>
+                </Grid>
             </Grid>
-        </Grid>
+        </Border>
 
         <Border Grid.Row="1" Padding="4,0" Background="#FF191B1D">
             <Grid>

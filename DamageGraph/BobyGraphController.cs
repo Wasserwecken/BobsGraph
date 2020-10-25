@@ -5,16 +5,16 @@ using Hearthstone_Deck_Tracker;
 using Hearthstone_Deck_Tracker.Enums;
 using Hearthstone_Deck_Tracker.Utility.Logging;
 
-namespace DamageGraph
+namespace BobsGraphPlugin
 {
-    public class GraphController
+    public class BobyGraphController
     {
-        private readonly GraphUI _graphUI;
+        private readonly BobsGraphUI _graphUI;
 
         /// <summary>
         /// 
         /// </summary>
-        public GraphController(GraphUI graphUI)
+        public BobyGraphController(BobsGraphUI graphUI)
         {
             _graphUI = graphUI;
         }
@@ -27,7 +27,7 @@ namespace DamageGraph
         {
             if (ShouldEvaluate(player) && BobsBuddyProvider.TryGetTestOutput(out var output))
             {
-                _graphUI.Update(EvaluateSimulation(output));
+                _graphUI.Update(output);
             }
         }
 
@@ -45,24 +45,13 @@ namespace DamageGraph
                 return false;
             }
 
-            if (player == ActivePlayer.Player && turnNumber != 2)
-            {
-                Log.Info("Shooping turn, simulation has been already run");
-                return false;
-            }
+            //if (player == ActivePlayer.Player && turnNumber != 2)
+            //{
+            //    Log.Info("Shooping turn, simulation has been already run");
+            //    return false;
+            //}
 
             return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private static List<(int, int)> EvaluateSimulation(TestOutput simulationOutput)
-        {
-            return simulationOutput.result
-                .GroupBy(trace => trace.damage)
-                .Select(group => (Damage: group.Key, Count: group.Count() / simulationOutput.result.Count))
-                .ToList();
         }
     }
 }

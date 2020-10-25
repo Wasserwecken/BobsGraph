@@ -7,8 +7,8 @@
     <ProjectGuid>{9711DD6E-EC5C-43CC-A9C6-DCE6D296A94D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DamageGraph</RootNamespace>
-    <AssemblyName>DamageGraph</AssemblyName>
+    <RootNamespace>BobsGraph</RootNamespace>
+    <AssemblyName>BobsGraph</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -25,20 +25,19 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\AppData\Roaming\HearthstoneDeckTracker\Plugins\DamageGraph\</OutputPath>
+    <OutputPath>..\..\..\..\AppData\Roaming\HearthstoneDeckTracker\Plugins\BobsGraph\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BobsBuddy, Version=1.2.15.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\AppData\Local\HearthstoneDeckTracker\app-1.13.7\BobsBuddy.dll</HintPath>
+    <Reference Include="BobsBuddy">
+      <HintPath>..\..\..\..\AppData\Local\HearthstoneDeckTracker\app-1.13.9\BobsBuddy.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HearthstoneDeckTracker">
-      <HintPath>..\..\..\..\AppData\Local\HearthstoneDeckTracker\app-1.13.7\HearthstoneDeckTracker.exe</HintPath>
+      <HintPath>..\..\..\..\AppData\Local\HearthstoneDeckTracker\app-1.13.9\HearthstoneDeckTracker.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
@@ -56,15 +55,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BobsBuddyProvider.cs" />
-    <Compile Include="GraphController.cs" />
-    <Compile Include="GraphUI.xaml.cs">
-      <DependentUpon>GraphUI.xaml</DependentUpon>
+    <Compile Include="BobyGraphController.cs" />
+    <Compile Include="BobsGraphViewModel.cs" />
+    <Compile Include="BobsGraphUI.cs">
+      <DependentUpon>BobsGraphUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="PluginHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="GraphUI.xaml">
+    <Page Include="BobsGraphUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

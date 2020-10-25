@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows.Controls;
 using Hearthstone_Deck_Tracker.API;
 using Hearthstone_Deck_Tracker.Plugins;
-using Hearthstone_Deck_Tracker.Utility.Logging;
 
-namespace DamageGraph
+namespace BobsGraphPlugin
 {
     public class PluginHook : IPlugin
     {
@@ -16,8 +14,8 @@ namespace DamageGraph
         public Version Version => new Version(0, 0, 1);
         public MenuItem MenuItem => null;
 
-        private GraphUI _graphUI;
-        private GraphController _graphController;
+        private BobsGraphUI _graphUI;
+        private BobyGraphController _graphController;
 
         /// <summary>
         /// Triggered upon startup and when the user ticks the plugin on
@@ -54,8 +52,8 @@ namespace DamageGraph
         {
             if (Core.Game.IsBattlegroundsMatch)
             {
-                _graphUI = new GraphUI();
-                _graphController = new GraphController(_graphUI);
+                _graphUI = new BobsGraphUI();
+                _graphController = new BobyGraphController(_graphUI);
 
                 Core.OverlayCanvas.Children.Add(_graphUI);
                 GameEvents.OnTurnStart.Add(_graphController.TurnStart);

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 
-namespace DamageGraph
+namespace BobsGraphPlugin
 {
     public static class BobsBuddyProvider
     {

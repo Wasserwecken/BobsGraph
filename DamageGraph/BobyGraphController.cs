@@ -25,7 +25,8 @@ namespace BobsGraphPlugin
         /// <param name="player"></param>
         public void TurnStart(ActivePlayer player)
         {
-            if (ShouldEvaluate(player) && BobsBuddyProvider.TryGetTestOutput(out var output))
+            var turn = Core.Game.GetTurnNumber();
+            if (ShouldEvaluate(player) && BobsBuddyProvider.TryGetTestOutput(turn, out var output))
             {
                 _graphUI.Update(output);
             }
@@ -39,17 +40,11 @@ namespace BobsGraphPlugin
         private static bool ShouldEvaluate(ActivePlayer player)
         {
             var turnNumber = Core.Game.GetTurnNumber();
-            if (turnNumber < 2)
+            if (turnNumber < 1)
             {
                 Log.Info("There is no simulation for the first turn");
                 return false;
             }
-
-            //if (player == ActivePlayer.Player && turnNumber != 2)
-            //{
-            //    Log.Info("Shooping turn, simulation has been already run");
-            //    return false;
-            //}
 
             return true;
         }

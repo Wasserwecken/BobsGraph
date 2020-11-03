@@ -1,33 +1,20 @@
 ﻿using BobsBuddy.Simulation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace BobsGraphPlugin
 {
-    public class BobsGraphViewModel
-    {        
-        /// <summary>
-        /// 
-        /// </summary>
-        private struct DamageDistributionItem
+    public class BobsGraphViewModel : INotifyPropertyChanged
+    {
+        public enum DiagramType
         {
-            public float Damage { get; set; }
-            public float Percentage { get; set; }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="damage"></param>
-            /// <param name="percentage"></param>
-            public DamageDistributionItem(float damage, float percentage)
-            {
-                Damage = damage;
-                Percentage = percentage;
-            }
+            Distribution,
+            Probabilities
         }
 
         public Visibility TieLineVisibility { get; private set; }
@@ -36,8 +23,12 @@ namespace BobsGraphPlugin
 
         public int MaxDamage { get; private set; }
         public int MinDamage { get; private set; }
-        
-        public double TieLinePosition { get; private set; }
+        public int DamageSpan { get; private set; }
+
+        public double TieLinePositionX1 { get; private set; }
+        public double TieLinePositionX2 { get; private set; }
+        public double TieLinePositionY1 { get; private set; }
+        public double TieLinePositionY2 { get; private set; }
         public double TakeLethalAreaWidth { get; private set; }
         public double TakeDamageAreaWidth { get; private set; }
         public double DealDamageAreaWidth { get; private set; }
@@ -54,122 +45,93 @@ namespace BobsGraphPlugin
         public Color MinDamageColor { get; private set; }
         public Color MaxDamageColor { get; private set; }
 
-
         private Color _tieColorBase;
         private Color _takeDamageColorBase;
         private Color _dealDamageColorBase;
-        private readonly List<DamageDistributionItem> _normalizedDamageDistribution;
 
+        public DiagramType ActiveDiagramType { get; private set; }
+
+        private TestOutput _originalData;
+        private Dictionary<int, float> _damageDistribution;
+        private Dictionary<float, float> _normalizedDamageDistribution;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// 
         /// </summary>
         public BobsGraphViewModel()
         {
+            ActiveDiagramType = DiagramType.Probabilities;
+            GraphPoints = new PointCollection();
+            _damageDistribution = new Dictionary<int, float>();
+            _normalizedDamageDistribution = new Dictionary<float, float>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Clear()
+        {
+            MaxDamage = 0;
+            MinDamage = 0;
+            DamageSpan = 0;
+
+            _damageDistribution.Clear();
+            _normalizedDamageDistribution.Clear();
+
             _tieColorBase = Color.FromArgb(255, 189, 190, 191);
             _takeDamageColorBase = Color.FromArgb(255, 198, 110, 110);
             _dealDamageColorBase = Color.FromArgb(255, 138, 198, 110);
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public BobsGraphViewModel(TestOutput simulationResult, float graphWidth, float graphHeight, float lineWidth)
-            : this()
-        {
-            _normalizedDamageDistribution = new List<DamageDistributionItem>();
-            GraphPoints = new PointCollection();
-
-            PrepareData(simulationResult);
-            SetGraph(graphWidth, graphHeight, lineWidth);
-            SetVisibility();
-            SetColors();
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="simulationResult"></param>
-        private void PrepareData(TestOutput simulationResult)
-        {
-            MaxDamage = simulationResult.result.Max(trace => trace.damage);
-            MinDamage = simulationResult.result.Min(trace => trace.damage);
-            var maxPeak = Math.Max(Math.Abs(MinDamage), Math.Abs(MaxDamage));
-
-            if (MinDamage == MaxDamage)
-            {
-                _normalizedDamageDistribution.Add(new DamageDistributionItem(0.5f, 1f));
-            }
-            else
-            {
-                simulationResult.result
-                    .GroupBy(trace => trace.damage)
-                    .Select(group =>
-                    {
-                        return new DamageDistributionItem(
-                            Remap(group.Key, MinDamage, MaxDamage, 0, 1),
-                            group.Count() / (float)simulationResult.result.Count
-                        );
-                    })
-                    .OrderBy(item => item.Damage)
-                    .ToList()
-                    .ForEach(item => _normalizedDamageDistribution.Add(item));
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        private void SetGraph(float width, float height, float lineWidth)
-        {
-            var lineHalfWidth = lineWidth / 2;
-            var horizontal = 0d;
-            var vertical = 0d;
-
-            TieLinePosition = (Remap(0, MinDamage, MaxDamage, 1, 0) * height -lineHalfWidth) + lineHalfWidth;
-            _normalizedDamageDistribution.ForEach(item =>
-            {
-                vertical = Remap(item.Damage, 0, 1, height -lineHalfWidth, lineHalfWidth);
-                GraphPoints.Add(new Point(horizontal, vertical));
-
-                horizontal += item.Percentage * width;
-                GraphPoints.Add(new Point(horizontal, vertical));
-            });
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void SetColors()
-        {
             EqualDamageColor = _tieColorBase;
             MinDamageColor = _takeDamageColorBase;
             MaxDamageColor = _dealDamageColorBase;
+        }
+
+        public void Prepare(TestOutput simulationResult)
+        {
+            Clear();
+
+            _originalData = simulationResult;
+            MaxDamage = simulationResult.result.Max(trace => trace.damage);
+            MinDamage = simulationResult.result.Min(trace => trace.damage);
+            DamageSpan = MaxDamage - MinDamage;
 
             if (MinDamage == MaxDamage)
             {
+                _damageDistribution.Add(MinDamage, 1f);
+                _normalizedDamageDistribution.Add(0.5f, 1f);
+
                 if (MinDamage > 0)
                     MinDamageColor = _dealDamageColorBase;
 
                 else if (MinDamage < 0)
                     MaxDamageColor = _takeDamageColorBase;
+
+                TieLineVisibility = Visibility.Hidden;
+                MinMaxDamageVisible = Visibility.Hidden;
+                EqualDamageVisible = Visibility.Visible;
             }
             else
             {
+                _damageDistribution = simulationResult.result
+                    .GroupBy(trace => trace.damage)
+                    .OrderBy(group => group.Key)
+                    .ToDictionary(group => group.Key, group => group.Count() / (float)simulationResult.result.Count);
+
+                _normalizedDamageDistribution = _damageDistribution
+                    .ToDictionary(item => Remap(item.Key, MinDamage, MaxDamage, 0, 1), item => item.Value);
+
                 if (MinDamage > 0 || Math.Abs(MinDamage) < MaxDamage)
-                {
-                    var weight = Remap(MinDamage, -MaxDamage, MaxDamage, 0, 1);
-                    MinDamageColor = Lerp(_takeDamageColorBase, _dealDamageColorBase, weight);
-                }
+                    MinDamageColor = Lerp(_takeDamageColorBase, _dealDamageColorBase, Remap(MinDamage, -MaxDamage, MaxDamage, 0, 1));
 
                 else if (MaxDamage < 0 || Math.Abs(MinDamage) > MaxDamage)
-                {
-                    var weight = Remap(MaxDamage, MinDamage, -MinDamage, 0, 1);
-                    MaxDamageColor = Lerp(_takeDamageColorBase, _dealDamageColorBase, weight);
-                }
+                    MaxDamageColor = Lerp(_takeDamageColorBase, _dealDamageColorBase, Remap(MaxDamage, MinDamage, -MinDamage, 0, 1));
+
+                TieLineVisibility = MinDamage > 0 || MaxDamage < 0 ? Visibility.Hidden : Visibility.Visible;
+                MinMaxDamageVisible = Visibility.Visible;
+                EqualDamageVisible = Visibility.Hidden;
             }
 
             TieLineBrush = new SolidColorBrush(_tieColorBase);
@@ -178,22 +140,87 @@ namespace BobsGraphPlugin
             MaxDamageBrush = new SolidColorBrush(MaxDamageColor);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private void SetVisibility()
+        public void Show(float graphWidth, float graphHeight, float lineWidth)
         {
-            if (MinDamage == MaxDamage)
+            switch (ActiveDiagramType)
             {
-                TieLineVisibility = Visibility.Hidden;
-                MinMaxDamageVisible = Visibility.Hidden;
-                EqualDamageVisible = Visibility.Visible;
+                case DiagramType.Distribution:
+                    ShowDistribution(graphWidth, graphHeight, lineWidth);
+                    break;
+
+                case DiagramType.Probabilities:
+                    ShowProbabilities(graphWidth, graphHeight, lineWidth);
+                    break;
+            }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+        }
+
+        public void ShowNextDiagram(float graphWidth, float graphHeight, float lineWidth)
+        {
+            ActiveDiagramType = (DiagramType)(((int)ActiveDiagramType + 1) % Enum.GetNames(typeof(DiagramType)).Length);
+            Show(graphWidth, graphHeight, lineWidth);
+        }
+
+        private void ShowDistribution(float graphWidth, float graphHeight, float lineWidth)
+        {
+            var lineWidthHalf = lineWidth / 2;
+            var horizontal = 0d;
+            var vertical = 0d;
+
+            TieLinePositionX1 = 0;
+            TieLinePositionX2 = graphWidth;
+            TieLinePositionY1 = (Remap(0, MinDamage, MaxDamage, 1, 0) * graphHeight - lineWidthHalf) + lineWidthHalf;
+            TieLinePositionY2 = TieLinePositionY1;
+
+            GraphPoints = new PointCollection();
+            foreach (var item in _normalizedDamageDistribution)
+            {
+                vertical = Remap(item.Key, 0, 1, graphHeight - lineWidthHalf, lineWidthHalf);
+                GraphPoints.Add(new Point(horizontal, vertical));
+
+                horizontal += item.Value * graphWidth;
+                GraphPoints.Add(new Point(horizontal, vertical));
+            }
+
+            TakeLethalAreaWidth = graphWidth * _originalData.myDeathRate;
+            DealLethalAreaWidth = graphWidth * _originalData.theirDeathRate;
+        }
+
+        private void ShowProbabilities(float graphWidth, float graphHeight, float lineWidth)
+        {
+            var lineWidthHalf = lineWidth / 2;
+            var horizontal = 0d;
+            var vertical = 0d;
+            var maxProbability = _normalizedDamageDistribution.Max(f => f.Value);
+            var widthPerEntry = 1f / (DamageSpan + 1);
+
+            TieLinePositionY1 = 0;
+            TieLinePositionY2 = graphHeight;
+            TieLinePositionX1 = Remap(0, MinDamage, MaxDamage, 0, 1) * graphWidth;
+            TieLinePositionX2 = TieLinePositionX1;
+
+            GraphPoints = new PointCollection();
+            for (int i = MinDamage; i <= MaxDamage; i++)
+            {
+                _damageDistribution.TryGetValue(i, out float percentage);
+
+                vertical = Remap(percentage, 0, maxProbability, graphHeight - lineWidthHalf, lineWidthHalf);
+                GraphPoints.Add(new Point(horizontal, vertical));
+
+                horizontal += widthPerEntry * graphWidth;
+                GraphPoints.Add(new Point(horizontal, vertical));
+            }
+
+            if (DamageSpan == 0)
+            {
+                TakeLethalAreaWidth = _originalData.friendlyHealth + MinDamage < 0 ? graphWidth : 0;
+                DealLethalAreaWidth = _originalData.opponentHealth + MaxDamage < 0 ? graphWidth : 0;
             }
             else
             {
-                TieLineVisibility = MinDamage > 0 || MaxDamage < 0 ? Visibility.Hidden : Visibility.Visible;
-                MinMaxDamageVisible = Visibility.Visible;
-                EqualDamageVisible = Visibility.Hidden;
+                TakeLethalAreaWidth = Math.Abs(Math.Min(0, MinDamage + _originalData.friendlyHealth)) * widthPerEntry;
+                DealLethalAreaWidth = Math.Max(0, MaxDamage - _originalData.opponentHealth) * widthPerEntry;
             }
         }
 

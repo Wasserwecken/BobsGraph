@@ -9,6 +9,7 @@
     Background="#23272A"
     Width="352"
     Height="100"
+    MouseRightButtonDown="SwitchDiagram"
 >
     <UserControl.DataContext>
         <local:BobsGraphViewModel/>
@@ -17,6 +18,7 @@
     <UserControl.Resources>
         <Style TargetType="TextBlock" x:Key="DamageInfo">
             <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="16"/>
         </Style>
     </UserControl.Resources>
 
@@ -26,28 +28,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Padding="0,4">
-            <Grid x:Name="GraphArea" Grid.Row="0" ClipToBounds="True">
-                <Polyline 
-                    Points="{Binding GraphPoints}"
-                >
-                    <Polyline.Stroke>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="{Binding MinDamageColor}" Offset="0"/>
-                            <GradientStop Color="{Binding MaxDamageColor}" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Polyline.Stroke>
-                </Polyline>
-
-                <Line
-                    X1="0"
-                    X2="4000"
-                    Y1="{Binding TieLinePosition}"
-                    Y2="{Binding TieLinePosition}"
-                    Stroke="{Binding TieLineBrush}"
-                    Visibility="{Binding TieLineVisibility}"
-                />
-
+            <Grid x:Name="GraphArea" Grid.Row="0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -57,28 +38,39 @@
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                         <Rectangle
-                            x:Name="TakeLethalArea"
+                            Fill="#14BD6A6A"
                             Width="{Binding TakeLethalAreaWidth}"
-                        />
-                        <Rectangle
-                            x:Name="TakeDamageArea"
-                            Width="{Binding TakeDamageAreaWidth}"
                         />
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Rectangle
-                            x:Name="DealDamageArea"
-                            Width="{Binding DealDamageAreaWidth}"
-                        />
-                        <Rectangle
-                            x:Name="DealLethalArea"
+                            Fill="#148AC66E"
                             Width="{Binding DealLethalAreaWidth}"
                         />
                     </StackPanel>
                 </Grid>
+
+            <Border Padding="0,0">
+                <Polyline Points="{Binding GraphPoints}" StrokeThickness="2">
+                    <Polyline.Stroke>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{Binding MinDamageColor}" Offset="0"/>
+                            <GradientStop Color="{Binding MaxDamageColor}" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Polyline.Stroke>
+                </Polyline>
+            </Border>
+
+            <Line
+                    X1="{Binding TieLinePositionX1}"
+                    X2="{Binding TieLinePositionX2}"
+                    Y1="{Binding TieLinePositionY1}"
+                    Y2="{Binding TieLinePositionY2}"
+                    Stroke="{Binding TieLineBrush}"
+                    Visibility="{Binding TieLineVisibility}"
+                />
             </Grid>
-        </Border>
 
         <Border Grid.Row="1" Padding="4,0" Background="#FF191B1D">
             <Grid>

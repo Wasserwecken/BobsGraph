@@ -30,10 +30,17 @@ namespace GraphTest
         /// <param name="e"></param>
         private void Generate(object sender, RoutedEventArgs e)
         {
-            var min = _rand.Next(-10, 5);
-            var max = Math.Max(min, _rand.Next(-5, 10));
+            var min = _rand.Next(-20, 5);
+            var max = Math.Max(min, _rand.Next(-5, 20));
 
-            var fakeResult = new TestOutput();
+            var fakeResult = new TestOutput
+            {
+                friendlyHealth = _rand.Next(1, 15),
+                opponentHealth = _rand.Next(1, 15),
+                myDeathRate = (float)_rand.NextDouble() * 0.5f,
+                theirDeathRate = (float)_rand.NextDouble() * 0.5f
+            };
+
             for (int i = 0; i < 100; i++)
             {
                 fakeResult.result.Add(new FightTrace()

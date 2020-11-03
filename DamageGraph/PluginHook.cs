@@ -7,7 +7,7 @@ namespace BobsGraphPlugin
 {
     public class PluginHook : IPlugin
     {
-        public string Name => "Damage graph";
+        public string Name => "Bobs graph";
         public string Description => "Shows the possible damage distribution of the simulation";
         public string ButtonText => "";
         public string Author => "Wasserwecken";
@@ -23,6 +23,7 @@ namespace BobsGraphPlugin
         public void OnLoad()
         {
             GameEvents.OnGameStart.Add(PrepareIfBattleGrounds);
+            GameEvents.OnGameEnd.Add(Deactivate);
         }
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace BobsGraphPlugin
 
 
         /// <summary>
-        /// Prepares the plugin ind UI for the turns
+        /// Prepares the plugin and UI for the turns
         /// </summary>
         private void PrepareIfBattleGrounds()
         {
@@ -58,6 +59,14 @@ namespace BobsGraphPlugin
                 Core.OverlayCanvas.Children.Add(_graphUI);
                 GameEvents.OnTurnStart.Add(_graphController.TurnStart);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void Deactivate()
+        {
+            _graphUI.Hide();
         }
     }
 }

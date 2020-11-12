@@ -11,8 +11,8 @@
 - The graph uses only data which is given by Bobs Helper simulation.
 - Bottom numbers showing min and max possible damage.
 - Each bar stands for the damage between min and max.
-- Height of the bar showing the probability of the damage.
-- The height is set to the highest probability.
+- The height of the bars show the probability of the damage.
+- The height is scaled by the highest probability.
 - The white bar marks the tie probability (zero damage).
 - If there are lethal chances, red and green areas will mark the damages for it.
 

@@ -24,7 +24,7 @@ namespace BobsGraphPlugin
         /// </summary>
         /// <param name="output"></param>
         /// <returns></returns>
-        public static bool TryGetTestOutput(int turn, out TestOutput output)
+        public static bool TryGetTestOutput(int turn, Guid gameId, out TestOutput output)
         {
             output = null;
 
@@ -33,7 +33,7 @@ namespace BobsGraphPlugin
                 return false;
 
             // Gets the current instance that invoked the simulation
-            if (!TryGetInvokerInstance(_getInstanceMethod, turn, out var invoker))
+            if (!TryGetInvokerInstance(_getInstanceMethod, turn, gameId, out var invoker))
                 return false;
 
             // Reads the results of the simmulation that has been invoked
@@ -46,9 +46,9 @@ namespace BobsGraphPlugin
         /// </summary>
         /// <param name="invoker"></param>
         /// <returns></returns>
-        private static bool TryGetInvokerInstance(MethodInfo getIntanceMethod, int turn, out object invoker)
+        private static bool TryGetInvokerInstance(MethodInfo getIntanceMethod, int turn, Guid gameId, out object invoker)
         {
-            if (TryGetInvokerInstanceParameters(turn, out var parameters))
+            if (TryGetInvokerInstanceParameters(turn, gameId, out var parameters))
             {
                 invoker = getIntanceMethod.Invoke(null, parameters);
                 if (invoker == null)
@@ -68,7 +68,7 @@ namespace BobsGraphPlugin
         /// </summary>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        private static bool TryGetInvokerInstanceParameters(int turn, out object[] parameters)
+        private static bool TryGetInvokerInstanceParameters(int turn, Guid gameId, out object[] parameters)
         {
             parameters = null;
 
@@ -86,7 +86,7 @@ namespace BobsGraphPlugin
 
             parameters = new object[]
             {
-                Core.Game.CurrentGameStats.GameId,
+                gameId,
                 turn,
                 false
             };

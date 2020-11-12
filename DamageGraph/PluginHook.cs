@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using Hearthstone_Deck_Tracker.API;
 using Hearthstone_Deck_Tracker.Enums;
@@ -60,6 +61,10 @@ namespace BobsGraphPlugin
                 {
                     _graphUI = new BobsGraphUI();
                 }
+                else
+                {
+                    _graphUI.Clear();
+                }
 
                 Core.OverlayCanvas.Children.Add(_graphUI);
                 GameEvents.OnTurnStart.Add(HandleTurnStart);
@@ -83,17 +88,45 @@ namespace BobsGraphPlugin
         /// <param name="player"></param>
         private void HandleTurnStart(ActivePlayer player)
         {
-            var turn = Core.Game.GetTurnNumber() - player == ActivePlayer.Player ? 1 : 0;
+            var gameId = Core.Game.CurrentGameStats.GameId;
+            var turn = Core.Game.GetTurnNumber();
+            
+            if (player == ActivePlayer.Player)
+            {
+               turn = Math.Max(0, turn - 1);
+            }
 
-            if (BobsBuddyProvider.TryGetTestOutput(turn, out var result))
+            if (turn > 0)
             {
-                Log.Info("Showing simulaion result in graph");
-                _graphUI.Update(result);
+                _ = GetSimulationData(turn, gameId);
             }
-            else
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="turn"></param>
+        /// <param name="gameId"></param>
+        /// <returns></returns>
+        private async Task GetSimulationData(int turn, Guid gameId)
+        {
+            _graphUI.Clear();
+
+            var attempts = 10;
+            for(int i = 0; i < attempts; i++)
             {
-                Log.Info("Unable to get simulation result for graph");
+                if (BobsBuddyProvider.TryGetTestOutput(turn, gameId, out var result))
+                {
+                    Log.Info("Found simulaion result.");
+                    _graphUI.Update(result);
+                    return;
+                }
+
+                Log.Warn("Could not get simulaion result.");
+                await Task.Delay(1000);
             }
+
+            Log.Warn($"Unable to get simulation {gameId} {turn} after {attempts} attempts.");
         }
     }
 }

@@ -9,6 +9,9 @@
     Background="#23272A"
     Width="352"
     Height="100"
+    MouseDown="BeginDrag"
+    MouseMove="Drag"
+    MouseUp="EndDrag"
 >
     <UserControl.DataContext>
         <local:BobsGraphViewModel/>
@@ -37,15 +40,15 @@
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                         <Rectangle
-                            Fill="#19BD6A6A"
-                            Width="{Binding TakeLethalAreaWidth}"
+                            Fill="#198AC66E"
+                            Width="{Binding DealLethalAreaWidth}"
                         />
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Rectangle
-                            Fill="#198AC66E"
-                            Width="{Binding DealLethalAreaWidth}"
+                            Fill="#19BD6A6A"
+                            Width="{Binding TakeLethalAreaWidth}"
                         />
                     </StackPanel>
                 </Grid>
@@ -54,8 +57,8 @@
                 <Polyline Points="{Binding GraphPoints}" StrokeThickness="2">
                     <Polyline.Stroke>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="{Binding MinDamageColor}" Offset="0"/>
-                            <GradientStop Color="{Binding MaxDamageColor}" Offset="1"/>
+                            <GradientStop Color="{Binding MaxDamageColor}" Offset="0"/>
+                            <GradientStop Color="{Binding MinDamageColor}" Offset="1"/>
                         </LinearGradientBrush>
                     </Polyline.Stroke>
                 </Polyline>
@@ -79,9 +82,9 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Visibility="{Binding MinMaxDamageVisible}" Text="{Binding MinDamage}" Foreground="{Binding MinDamageBrush}" Style="{StaticResource DamageInfo}"/>
+                <TextBlock Grid.Column="0" Visibility="{Binding MinMaxDamageVisible}" Text="{Binding MaxDamage}" Foreground="{Binding MaxDamageBrush}" Style="{StaticResource DamageInfo}"/>
                 <TextBlock Grid.Column="1" Visibility="{Binding EqualDamageVisible}" Text="{Binding MinDamage}" Foreground="{Binding EqualDamageBrush}" Style="{StaticResource DamageInfo}"/>
-                <TextBlock Grid.Column="2" Visibility="{Binding MinMaxDamageVisible}" Text="{Binding MaxDamage}" Foreground="{Binding MaxDamageBrush}" Style="{StaticResource DamageInfo}"/>
+                <TextBlock Grid.Column="2" Visibility="{Binding MinMaxDamageVisible}" Text="{Binding MinDamage}" Foreground="{Binding MinDamageBrush}" Style="{StaticResource DamageInfo}"/>
             </Grid>
         </Border>
     </Grid>

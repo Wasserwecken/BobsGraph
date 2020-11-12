@@ -142,7 +142,7 @@ namespace BobsGraphPlugin
             var widthPerEntry = 1f / DamageSpan;
 
             GraphPoints = new PointCollection();
-            for (int i = MinDamage; i <= MaxDamage; i++)
+            for (int i = MaxDamage; i >= MinDamage; i--)
             {
                 _damageDistribution.TryGetValue(i, out double percentage);
 
@@ -161,7 +161,7 @@ namespace BobsGraphPlugin
         {
             TieLinePositionY1 = 0;
             TieLinePositionY2 = _graphHeight;
-            TieLinePositionX = 0.Remap(MinDamage, MaxDamage + 1, 0, 1) * _graphWidth;
+            TieLinePositionX = 0.Remap(MaxDamage, MinDamage - 1, 0, 1) * _graphWidth;
             TieLineThickness = _graphWidth / DamageSpan;
             TieLinePositionX += TieLineThickness * 0.5f;
 

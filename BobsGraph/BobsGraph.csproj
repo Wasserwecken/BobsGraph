@@ -60,6 +60,7 @@
       <DependentUpon>BobsGraphUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
+    <Compile Include="OverlayWindowHelper.cs" />
     <Compile Include="PluginHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

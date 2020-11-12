@@ -48,50 +48,12 @@ namespace BobsGraphPlugin
         /// <returns></returns>
         private static bool TryGetInvokerInstance(MethodInfo getIntanceMethod, int turn, Guid gameId, out object invoker)
         {
-            if (TryGetInvokerInstanceParameters(turn, gameId, out var parameters))
+            invoker = getIntanceMethod.Invoke(null, new object[] {gameId, turn, false });
+            if (invoker == null)
             {
-                invoker = getIntanceMethod.Invoke(null, parameters);
-                if (invoker == null)
-                {
-                    Log.Warn($"Cannot get invoker instance of game:{parameters[0]}, turn:{parameters[1]}");
-                    return false;
-                }
-                return true;
-            }
-
-            invoker = null;
-            return false;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        private static bool TryGetInvokerInstanceParameters(int turn, Guid gameId, out object[] parameters)
-        {
-            parameters = null;
-
-            if (Core.Game == null)
-            {
-                Log.Warn($"Cannot get invoker parameters because Core.Game is null");
+                Log.Warn($"Cannot get invoker instance of {gameId} {turn}");
                 return false;
             }
-
-            if (Core.Game.CurrentGameStats == null)
-            {
-                Log.Warn($"Cannot get invoker parameters because Core.Game.CurrentGameStats is null");
-                return false;
-            }
-
-            parameters = new object[]
-            {
-                gameId,
-                turn,
-                false
-            };
-            Log.Info($"Simulation parameters: {parameters[0]} {parameters[1]}");
-            
             return true;
         }
 

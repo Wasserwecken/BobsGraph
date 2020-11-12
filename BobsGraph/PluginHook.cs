@@ -60,6 +60,7 @@ namespace BobsGraphPlugin
                 if (_graphUI == null)
                 {
                     _graphUI = new BobsGraphUI();
+                    OverlayWindowHelper.TryMarkAsClickable(_graphUI);
                 }
                 else
                 {

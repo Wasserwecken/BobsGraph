@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Windows.Controls;
 using Hearthstone_Deck_Tracker.API;
+using Hearthstone_Deck_Tracker.Enums;
 using Hearthstone_Deck_Tracker.Plugins;
+using Hearthstone_Deck_Tracker.Utility.Logging;
 
 namespace BobsGraphPlugin
 {
@@ -15,7 +17,6 @@ namespace BobsGraphPlugin
         public MenuItem MenuItem => null;
 
         private BobsGraphUI _graphUI;
-        private BobyGraphController _graphController;
 
         /// <summary>
         /// Triggered upon startup and when the user ticks the plugin on
@@ -23,7 +24,9 @@ namespace BobsGraphPlugin
         public void OnLoad()
         {
             GameEvents.OnGameStart.Add(PrepareIfBattleGrounds);
-            GameEvents.OnGameEnd.Add(Deactivate);
+            GameEvents.OnInMenu.Add(Deactivate);
+
+            PrepareIfBattleGrounds();
         }
 
         /// <summary>
@@ -32,7 +35,7 @@ namespace BobsGraphPlugin
         /// </summary>
         public void OnUnload()
         {
-            if (_graphUI != null) Core.OverlayCanvas.Children.Remove(_graphUI);
+            Deactivate();
         }
 
         /// <summary>
@@ -53,11 +56,13 @@ namespace BobsGraphPlugin
         {
             if (Core.Game.IsBattlegroundsMatch)
             {
-                _graphUI = new BobsGraphUI();
-                _graphController = new BobyGraphController(_graphUI);
+                if (_graphUI == null)
+                {
+                    _graphUI = new BobsGraphUI();
+                }
 
                 Core.OverlayCanvas.Children.Add(_graphUI);
-                GameEvents.OnTurnStart.Add(_graphController.TurnStart);
+                GameEvents.OnTurnStart.Add(HandleTurnStart);
             }
         }
 
@@ -66,7 +71,29 @@ namespace BobsGraphPlugin
         /// </summary>
         private void Deactivate()
         {
-            _graphUI.Hide();
+            if (_graphUI != null)
+            {
+                Core.OverlayCanvas.Children.Remove(_graphUI);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="player"></param>
+        private void HandleTurnStart(ActivePlayer player)
+        {
+            var turn = Core.Game.GetTurnNumber() - player == ActivePlayer.Player ? 1 : 0;
+
+            if (BobsBuddyProvider.TryGetTestOutput(turn, out var result))
+            {
+                Log.Info("Showing simulaion result in graph");
+                _graphUI.Update(result);
+            }
+            else
+            {
+                Log.Info("Unable to get simulation result for graph");
+            }
         }
     }
 }

@@ -90,6 +90,8 @@ namespace BobsGraphPlugin
                 turn,
                 false
             };
+            Log.Info($"Simulation parameters: {parameters[0]} {parameters[1]}");
+            
             return true;
         }
 

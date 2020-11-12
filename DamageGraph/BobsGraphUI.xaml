@@ -9,7 +9,6 @@
     Background="#23272A"
     Width="352"
     Height="100"
-    MouseRightButtonDown="SwitchDiagram"
 >
     <UserControl.DataContext>
         <local:BobsGraphViewModel/>
@@ -38,14 +37,14 @@
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                         <Rectangle
-                            Fill="#14BD6A6A"
+                            Fill="#19BD6A6A"
                             Width="{Binding TakeLethalAreaWidth}"
                         />
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Rectangle
-                            Fill="#148AC66E"
+                            Fill="#198AC66E"
                             Width="{Binding DealLethalAreaWidth}"
                         />
                     </StackPanel>
@@ -63,11 +62,12 @@
             </Border>
 
             <Line
-                    X1="{Binding TieLinePositionX1}"
-                    X2="{Binding TieLinePositionX2}"
+                    X1="{Binding TieLinePositionX}"
+                    X2="{Binding TieLinePositionX}"
                     Y1="{Binding TieLinePositionY1}"
                     Y2="{Binding TieLinePositionY2}"
                     Stroke="{Binding TieLineBrush}"
+                    StrokeThickness="{Binding TieLineThickness}"
                     Visibility="{Binding TieLineVisibility}"
                 />
             </Grid>

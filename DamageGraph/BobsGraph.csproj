@@ -33,11 +33,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BobsBuddy">
-      <HintPath>..\..\..\..\AppData\Local\HearthstoneDeckTracker\app-1.13.9\BobsBuddy.dll</HintPath>
+      <HintPath>..\..\..\..\AppData\Local\HearthstoneDeckTracker\app-1.13.11\BobsBuddy.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HearthstoneDeckTracker">
-      <HintPath>..\..\..\..\AppData\Local\HearthstoneDeckTracker\app-1.13.9\HearthstoneDeckTracker.exe</HintPath>
+      <HintPath>..\..\..\..\AppData\Local\HearthstoneDeckTracker\app-1.13.11\HearthstoneDeckTracker.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
@@ -55,11 +55,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BobsBuddyProvider.cs" />
-    <Compile Include="BobyGraphController.cs" />
     <Compile Include="BobsGraphViewModel.cs" />
     <Compile Include="BobsGraphUI.cs">
       <DependentUpon>BobsGraphUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions.cs" />
     <Compile Include="PluginHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

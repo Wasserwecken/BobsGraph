@@ -1,4 +1,5 @@
 ﻿using BobsBuddy.Simulation;
+using BobsGraph;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -11,32 +12,33 @@ namespace BobsGraphPlugin
     /// </summary>
     public partial class BobsGraphUI : UserControl
     {
-        private BobsGraphViewModel _viewModel;
-
         /// <summary>
         /// 
         /// </summary>
         public BobsGraphUI()
         {
             InitializeComponent();
-
-            _viewModel = new BobsGraphViewModel();
-            DataContext = _viewModel;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="simulationOutput"></param>
-        public void Update(TestOutput simulationOutput)
+        public void Update(TestOutput result)
         {
-            _viewModel.Prepare(simulationOutput);
-            _viewModel.Show(
+            var viewModel = new BobsGraphViewModel();
+            viewModel.UpdateSize(
                 (float)GraphArea.ActualWidth,
                 (float)GraphArea.ActualHeight,
                 2);
+            viewModel.UpdateData(result);
+
+            DataContext = viewModel;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Show()
         {
             Visibility = Visibility.Visible;
@@ -45,21 +47,12 @@ namespace BobsGraphPlugin
             //Canvas.SetRight(this, (Core.OverlayWindow.Width - GraphGrid.Width) / 2);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Hide()
         {
             Visibility = Visibility.Hidden;
-        }
-
-        private void SwitchDiagram(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            _viewModel.ShowNextDiagram(
-                (float)GraphArea.ActualWidth,
-                (float)GraphArea.ActualHeight,
-                2);
-
-            var foo = _viewModel;
-            DataContext = null;
-            DataContext = foo;
         }
     }
 }

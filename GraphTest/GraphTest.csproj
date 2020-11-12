@@ -106,7 +106,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DamageGraph\BobsGraph.csproj">
+    <ProjectReference Include="..\BobsGraph\BobsGraph.csproj">
       <Project>{9711dd6e-ec5c-43cc-a9c6-dce6d296a94d}</Project>
       <Name>BobsGraph</Name>
     </ProjectReference>
